@@ -8,7 +8,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const API_KEY = "API_KEY_KAMU";
+const API_KEY = "kIb2krvypAo8WYYjvI5tOyHInS5ftmil";
 const PROJECT = "raff-coffe";
 
 app.post("/qris", async (req, res) => {
