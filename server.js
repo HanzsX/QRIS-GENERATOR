@@ -4,12 +4,12 @@ import cors from "cors";
 
 const app = express();
 
-// IZINKAN HTML DARI MANA SAJA
 app.use(cors());
 app.use(express.json());
 
 const API_KEY = "kIb2krvypAo8WYYjvI5tOyHInS5ftmil";
 const PROJECT = "raff-coffe";
+const AUTHOR = "Aspan-Official"; // ⬅️ TAMBAHAN
 
 app.post("/qris", async (req, res) => {
   try {
@@ -30,10 +30,18 @@ app.post("/qris", async (req, res) => {
     );
 
     const data = await response.json();
-    res.json(data);
+
+    // ⬇️ KIRIM AUTHOR KE FRONTEND
+    res.json({
+      ...data,
+      author: AUTHOR
+    });
 
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({
+      error: err.message,
+      author: AUTHOR
+    });
   }
 });
 
