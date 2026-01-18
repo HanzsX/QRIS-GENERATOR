@@ -1,51 +1,84 @@
 import express from "express";
-import fetch from "node-fetch";
 import cors from "cors";
 
 const app = express();
-
 app.use(cors());
 app.use(express.json());
 
-const API_KEY = "kIb2krvypAo8WYYjvI5tOyHInS5ftmil";
-const PROJECT = "raff-coffe";
-const AUTHOR = "Aspan-Official";
+// ENV dari Vercel
+const PAKASIR_PROJECT = "aspan-store";
+const PAKASIR_APIKEY = "Oxz8eU0CipNGMcKz4XVpJuKQ7ySOXodc";
 
-app.get("/", (req, res) => {
-  res.send("API QRIS Generator aktif ✅");
+// test
+app.get("/api/health", (req, res) => {
+  res.json({ ok: true, message: "Backend aktif" });
 });
 
-app.post("/qris", async (req, res) => {
+// create qris invoice
+app.post("/api/create-qris", async (req, res) => {
   try {
     const { order_id, amount } = req.body;
 
-    const response = await fetch(
-      "https://app.pakasir.com/api/transactioncreate/qris",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          project: PROJECT,
-          order_id,
-          amount,
-          api_key: API_KEY,
-        }),
-      }
-    );
+    if (!order_id || !amount) {
+      return res.status(400).json({
+        success: false,
+        message: "order_id atau amount kosong",
+      });
+    }
+
+    const pakasirUrl = "https://app.pakasir.com/api/transactioncreate/qris";
+
+    const payload = {
+      project: PAKASIR_PROJECT,
+      order_id: order_id,
+      amount: Number(amount),
+      api_key: PAKASIR_APIKEY,
+    };
+
+    const response = await fetch(pakasirUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
 
     const data = await response.json();
 
-    res.json({
-      ...data,
-      author: AUTHOR,
+    if (!response.ok) {
+      return res.status(500).json({
+        success: false,
+        message: "Pakasir error",
+        raw: data,
+      });
+    }
+
+    const payment = data.payment;
+    if (!payment) {
+      return res.status(500).json({
+        success: false,
+        message: "Response tidak valid",
+        raw: data,
+      });
+    }
+
+    // QR string -> jadi gambar QR (demo pakai qrserver)
+    const qrString = payment.payment_number || "";
+    const qrImage =
+      "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" +
+      encodeURIComponent(qrString);
+
+    return res.json({
+      success: true,
+      order_id: payment.order_id,
+      total_payment: payment.total_payment,
+      expired_at: payment.expired_at,
+      qr_image: qrImage,
     });
   } catch (err) {
-    res.status(500).json({
-      error: err.message,
-      author: AUTHOR,
+    return res.status(500).json({
+      success: false,
+      message: err.message,
     });
   }
 });
 
-// ❌ JANGAN pakai app.listen di Vercel
 export default app;
