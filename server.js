@@ -3,22 +3,20 @@ import fetch from "node-fetch";
 import cors from "cors";
 
 const app = express();
-
 app.use(cors());
 app.use(express.json());
 
-// ⚠️ lebih aman taruh di ENV, tapi ini dulu boleh
-const API_KEY = "Oxz8eU0CipNGMcKz4XVpJuKQ7ySOXodc";
-const PROJECT = "aspan-store";
+// ⚠️ Jangan hardcode kalau sudah deploy (pakai ENV)
+const API_KEY = process.env.PAKASIR_APIKEY || "API_KEY_KAMU";
+const PROJECT = process.env.PAKASIR_PROJECT || "raff-coffe";
 const AUTHOR = "Aspan-Official";
 
-// TEST
-app.get("/api/health", (req, res) => {
-  res.json({ ok: true, author: AUTHOR });
+// ✅ supaya tidak "Cannot GET /"
+app.get("/", (req, res) => {
+  res.json({ ok: true, message: "Backend aktif 🚀", author: AUTHOR });
 });
 
-// CREATE QRIS
-app.post("/api/create-qris", async (req, res) => {
+app.post("/qris", async (req, res) => {
   try {
     const { order_id, amount } = req.body;
 
@@ -46,19 +44,18 @@ app.post("/api/create-qris", async (req, res) => {
 
     const data = await response.json();
 
-    return res.json({
-      success: true,
+    res.json({
       ...data,
       author: AUTHOR
     });
 
   } catch (err) {
-    return res.status(500).json({
-      success: false,
+    res.status(500).json({
       error: err.message,
       author: AUTHOR
     });
   }
 });
 
+// ❌ Jangan pakai app.listen() di Vercel
 export default app;
