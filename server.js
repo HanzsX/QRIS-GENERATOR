@@ -7,8 +7,8 @@ app.use(cors());
 app.use(express.json());
 
 // ⚠️ Jangan hardcode kalau sudah deploy (pakai ENV)
-const API_KEY = process.env.PAKASIR_APIKEY || "API_KEY_KAMU";
-const PROJECT = process.env.PAKASIR_PROJECT || "raff-coffe";
+const API_KEY = process.env.PAKASIR_APIKEY || "Oxz8eU0CipNGMcKz4XVpJuKQ7ySOXodc";
+const PROJECT = process.env.PAKASIR_PROJECT || "aspan-store";
 const AUTHOR = "Aspan-Official";
 
 // ✅ supaya tidak "Cannot GET /"
