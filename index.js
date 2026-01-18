@@ -6,12 +6,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ⚠️ Jangan hardcode kalau sudah deploy (pakai ENV)
-const API_KEY = process.env.PAKASIR_APIKEY || "Oxz8eU0CipNGMcKz4XVpJuKQ7ySOXodc";
-const PROJECT = process.env.PAKASIR_PROJECT || "aspan-store";
+const API_KEY = "Oxz8eU0CipNGMcKz4XVpJuKQ7ySOXodc";
+const PROJECT = "aspan-store";
 const AUTHOR = "Aspan-Official";
 
-// ✅ supaya tidak "Cannot GET /"
+// test supaya tidak Cannot GET /
 app.get("/", (req, res) => {
   res.json({ ok: true, message: "Backend aktif 🚀", author: AUTHOR });
 });
@@ -44,18 +43,19 @@ app.post("/qris", async (req, res) => {
 
     const data = await response.json();
 
-    res.json({
+    return res.json({
+      success: true,
       ...data,
       author: AUTHOR
     });
 
   } catch (err) {
-    res.status(500).json({
+    return res.status(500).json({
+      success: false,
       error: err.message,
       author: AUTHOR
     });
   }
 });
 
-// ❌ Jangan pakai app.listen() di Vercel
 export default app;
