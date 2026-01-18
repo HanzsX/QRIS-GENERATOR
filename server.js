@@ -9,7 +9,11 @@ app.use(express.json());
 
 const API_KEY = "kIb2krvypAo8WYYjvI5tOyHInS5ftmil";
 const PROJECT = "raff-coffe";
-const AUTHOR = "Aspan-Official"; // ⬅️ TAMBAHAN
+const AUTHOR = "Aspan-Official";
+
+app.get("/", (req, res) => {
+  res.send("API QRIS Generator aktif ✅");
+});
 
 app.post("/qris", async (req, res) => {
   try {
@@ -24,26 +28,24 @@ app.post("/qris", async (req, res) => {
           project: PROJECT,
           order_id,
           amount,
-          api_key: API_KEY
-        })
+          api_key: API_KEY,
+        }),
       }
     );
 
     const data = await response.json();
 
-    // ⬇️ KIRIM AUTHOR KE FRONTEND
     res.json({
       ...data,
-      author: AUTHOR
+      author: AUTHOR,
     });
-
   } catch (err) {
     res.status(500).json({
       error: err.message,
-      author: AUTHOR
+      author: AUTHOR,
     });
   }
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log("API running"));
+// ❌ JANGAN pakai app.listen di Vercel
+export default app;
